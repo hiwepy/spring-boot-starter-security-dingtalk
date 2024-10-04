@@ -1,8 +1,7 @@
 package org.springframework.security.boot;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.dingtalk.spring.boot.DingTalkTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.biz.web.servlet.i18n.LocaleContextFilter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -21,22 +20,21 @@ import org.springframework.security.boot.biz.authentication.nested.MatchedAuthen
 import org.springframework.security.boot.biz.authentication.nested.MatchedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.UserDetailsServiceAdapter;
-import org.springframework.security.boot.dingtalk.authentication.DingTalkMatchedAuthenticationEntryPoint;
-import org.springframework.security.boot.dingtalk.authentication.DingTalkMatchedAuthenticationFailureHandler;
 import org.springframework.security.boot.dingtalk.authentication.DingTalkTmpCodeAuthenticationProcessingFilter;
 import org.springframework.security.boot.dingtalk.authentication.DingTalkTmpCodeAuthenticationProvider;
 import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.dingtalk.spring.boot.DingTalkTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
@@ -44,18 +42,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SecurityDingTalkTmpCodeFilterConfiguration {
 	
 	@Bean
-	public DingTalkTmpCodeAuthenticationProvider dingTalkTmpCodeAuthenticationProvider(
-			UserDetailsServiceAdapter userDetailsService, 
-			DingTalkTemplate dingtalkTemplate,
-			SecurityDingTalkProperties dingtalkProperties) {
-		return new DingTalkTmpCodeAuthenticationProvider(userDetailsService, dingtalkTemplate, dingtalkProperties);
+	public DingTalkTmpCodeAuthenticationProvider dingTalkTmpCodeAuthenticationProvider(ObjectProvider<UserDetailsServiceAdapter> userDetailsServiceProvider,
+																					   ObjectProvider<DingTalkTemplate> dingtalkTemplateProvider,
+																					   SecurityDingTalkProperties dingtalkProperties) {
+		return new DingTalkTmpCodeAuthenticationProvider(userDetailsServiceProvider.getIfAvailable(), dingtalkTemplateProvider.getIfAvailable(), dingtalkProperties);
 	}
 	
     @Configuration
     @ConditionalOnProperty(prefix = SecurityDingTalkProperties.PREFIX, value = "enabled", havingValue = "true")
     @EnableConfigurationProperties({ SecurityBizProperties.class, SecurityDingTalkProperties.class, SecurityDingTalkTmpCodeAuthcProperties.class })
-    @Order(SecurityProperties.DEFAULT_FILTER_ORDER + 13)
-   	static class DingTalkTmpCodeWebSecurityConfigurerAdapter extends WebSecurityBizConfigurerAdapter {
+   	static class DingTalkTmpCodeWebSecurityCustomizerAdapter extends WebSecurityCustomizerAdapter {
     	
     	private final SecurityDingTalkTmpCodeAuthcProperties authcProperties;
     	
@@ -67,7 +63,7 @@ public class SecurityDingTalkTmpCodeFilterConfiguration {
     	private final RememberMeServices rememberMeServices;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
    		
-   		public DingTalkTmpCodeWebSecurityConfigurerAdapter(
+   		public DingTalkTmpCodeWebSecurityCustomizerAdapter(
    			
    				SecurityBizProperties bizProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
@@ -126,8 +122,9 @@ public class SecurityDingTalkTmpCodeFilterConfiguration {
    	        return authenticationFilter;
    	    }
 
-   	    @Override
-		public void configure(HttpSecurity http) throws Exception {
+		@Bean
+		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 13)
+		public SecurityFilterChain dingTalkMaSecurityFilterChain(HttpSecurity http) throws Exception {
    	    	
    	    	http.antMatcher(authcProperties.getPathPattern())
 				.exceptionHandling()
@@ -142,13 +139,14 @@ public class SecurityDingTalkTmpCodeFilterConfiguration {
    	    	super.configure(http, authcProperties.getCsrf());
    	    	super.configure(http, authcProperties.getHeaders());
 	    	super.configure(http);
-	    	
-   	    }
-   	    
-   	    @Override
-	    public void configure(WebSecurity web) throws Exception {
-	    	super.configure(web);
-	    }
+
+			return http.build();
+		}
+
+		@Override
+		public void customize(WebSecurity web) {
+			super.customize(web);
+		}
 
    	}
 

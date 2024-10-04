@@ -26,6 +26,7 @@ import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -41,17 +42,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SecurityDingTalkMaFilterConfiguration {
 		
 	@Bean
-	public DingTalkMaAuthenticationProvider dingTalkMaAuthenticationProvider(
-			UserDetailsServiceAdapter userDetailsService, 
-			DingTalkTemplate dingtalkTemplate) {
-		return new DingTalkMaAuthenticationProvider(userDetailsService, dingtalkTemplate);
+	public DingTalkMaAuthenticationProvider dingTalkMaAuthenticationProvider(ObjectProvider<UserDetailsServiceAdapter> userDetailsServiceProvider,
+																			 ObjectProvider<DingTalkTemplate> dingtalkTemplateProvider) {
+		return new DingTalkMaAuthenticationProvider(userDetailsServiceProvider.getIfAvailable(), dingtalkTemplateProvider.getIfAvailable());
 	}
 	
     @Configuration
     @ConditionalOnProperty(prefix = SecurityDingTalkProperties.PREFIX, value = "enabled", havingValue = "true")
     @EnableConfigurationProperties({ SecurityBizProperties.class, SecuritySessionMgtProperties.class, SecurityDingTalkProperties.class, SecurityDingTalkMaAuthcProperties.class })
-    @Order(SecurityProperties.DEFAULT_FILTER_ORDER + 11)
-   	static class DingTalkMaWebSecurityConfigurerAdapter extends WebSecurityBizConfigurerAdapter {
+   	static class DingTalkMaWebSecurityCustomizerAdapter extends WebSecurityCustomizerAdapter {
     	
     	private final SecurityDingTalkMaAuthcProperties authcProperties;
     	
@@ -63,7 +62,7 @@ public class SecurityDingTalkMaFilterConfiguration {
     	private final RememberMeServices rememberMeServices;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
    		
-   		public DingTalkMaWebSecurityConfigurerAdapter(
+   		public DingTalkMaWebSecurityCustomizerAdapter(
    			
    				SecurityBizProperties bizProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
@@ -121,9 +120,10 @@ public class SecurityDingTalkMaFilterConfiguration {
    			
    	        return authenticationFilter;
    	    }
-   	    
-   	    @Override
-		public void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 11)
+		public SecurityFilterChain dingTalkMaSecurityFilterChain(HttpSecurity http) throws Exception {
 	    	
    	    	http.antMatcher(authcProperties.getPathPattern())
 				.exceptionHandling()
@@ -138,12 +138,14 @@ public class SecurityDingTalkMaFilterConfiguration {
    	    	super.configure(http, authcProperties.getCsrf());
    	    	super.configure(http, authcProperties.getHeaders());
 	    	super.configure(http);
+
+			return http.build();
    	    }
-   	    
-   	    @Override
-	    public void configure(WebSecurity web) throws Exception {
-	    	super.configure(web);
-	    }
+
+		@Override
+		public void customize(WebSecurity web) {
+			super.customize(web);
+		}
 
    	}
 
