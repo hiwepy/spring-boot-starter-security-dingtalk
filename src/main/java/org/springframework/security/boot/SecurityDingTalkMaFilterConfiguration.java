@@ -1,8 +1,7 @@
 package org.springframework.security.boot;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.dingtalk.spring.boot.DingTalkTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.biz.web.servlet.i18n.LocaleContextFilter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -21,20 +20,23 @@ import org.springframework.security.boot.biz.authentication.nested.MatchedAuthen
 import org.springframework.security.boot.biz.authentication.nested.MatchedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.UserDetailsServiceAdapter;
-import org.springframework.security.boot.dingtalk.authentication.*;
+import org.springframework.security.boot.dingtalk.authentication.DingTalkMaAuthenticationProcessingFilter;
+import org.springframework.security.boot.dingtalk.authentication.DingTalkMaAuthenticationProvider;
 import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.dingtalk.spring.boot.DingTalkTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
@@ -53,7 +55,8 @@ public class SecurityDingTalkMaFilterConfiguration {
    	static class DingTalkMaWebSecurityCustomizerAdapter extends WebSecurityCustomizerAdapter {
     	
     	private final SecurityDingTalkMaAuthcProperties authcProperties;
-    	
+
+		private final AccessDeniedHandler accessDeniedHandler;
     	private final LocaleContextFilter localeContextFilter;
 	    private final AuthenticationEntryPoint authenticationEntryPoint;
 	    private final AuthenticationSuccessHandler authenticationSuccessHandler;
@@ -67,8 +70,9 @@ public class SecurityDingTalkMaFilterConfiguration {
    				SecurityBizProperties bizProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
    				SecurityDingTalkMaAuthcProperties authcProperties,
-   				
-   				ObjectProvider<LocaleContextFilter> localeContextProvider,
+
+   				ObjectProvider<AccessDeniedHandler> accessDeniedHandlerProvider,
+				ObjectProvider<LocaleContextFilter> localeContextProvider,
    				ObjectProvider<AuthenticationProvider> authenticationProvider,
    				ObjectProvider<AuthenticationListener> authenticationListenerProvider,
    				ObjectProvider<MatchedAuthenticationEntryPoint> authenticationEntryPointProvider,
@@ -83,7 +87,7 @@ public class SecurityDingTalkMaFilterConfiguration {
    			super(bizProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()));
    			
    			this.authcProperties = authcProperties;
-
+			this.accessDeniedHandler = new CompositeAccessDeniedHandler(accessDeniedHandlerProvider.stream().collect(Collectors.toList()));
 			this.localeContextFilter = localeContextProvider.getIfAvailable();
    			List<AuthenticationListener> authenticationListeners = authenticationListenerProvider.stream().collect(Collectors.toList());
    			this.authenticationEntryPoint = WebSecurityUtils.authenticationEntryPoint(authcProperties, sessionMgtProperties, authenticationEntryPointProvider.stream().collect(Collectors.toList()));
@@ -124,14 +128,15 @@ public class SecurityDingTalkMaFilterConfiguration {
 		@Bean
 		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 11)
 		public SecurityFilterChain dingTalkMaSecurityFilterChain(HttpSecurity http) throws Exception {
-	    	
-   	    	http.antMatcher(authcProperties.getPathPattern())
-				.exceptionHandling()
-	        	.authenticationEntryPoint(authenticationEntryPoint)
-	        	.and()
-	        	.httpBasic()
-	        	.disable()
-   	        	.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
+
+   	    	http.securityMatcher(authcProperties.getPathPattern())
+					.exceptionHandling(configurer -> {
+						configurer.authenticationEntryPoint(authenticationEntryPoint)
+								.accessDeniedHandler(accessDeniedHandler)
+								.accessDeniedPage(authcProperties.getAccessDeniedUrl());
+					});
+			http.httpBasic(configurer -> configurer.disable());
+			http.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
    	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class); 
    	    	
    	    	super.configure(http, authcProperties.getCros());

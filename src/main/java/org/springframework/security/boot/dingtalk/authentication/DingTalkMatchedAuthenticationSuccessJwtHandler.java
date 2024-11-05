@@ -15,13 +15,10 @@
  */
 package org.springframework.security.boot.dingtalk.authentication;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson2.JSON;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +32,8 @@ import org.springframework.security.boot.biz.userdetails.UserProfilePayload;
 import org.springframework.security.boot.utils.SubjectUtils;
 import org.springframework.security.core.Authentication;
 
-import com.alibaba.fastjson.JSONObject;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class DingTalkMatchedAuthenticationSuccessJwtHandler implements MatchedAuthenticationSuccessHandler {
 
@@ -65,7 +63,7 @@ public class DingTalkMatchedAuthenticationSuccessJwtHandler implements MatchedAu
 		String message = messages.getMessage(AuthResponseCode.SC_AUTHC_SUCCESS.getMsgKey());
 		// 写出JSON
 		UserProfilePayload profilePayload = getPayloadRepository().getProfilePayload((AbstractAuthenticationToken) authentication, isCheckExpiry());
-		JSONObject.writeJSONString(response.getOutputStream(), AuthResponse.success(message, profilePayload));
+		JSON.writeTo(response.getOutputStream(), AuthResponse.success(message, profilePayload));
 
 	}
 
