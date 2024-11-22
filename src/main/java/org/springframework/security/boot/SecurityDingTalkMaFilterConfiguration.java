@@ -25,6 +25,7 @@ import org.springframework.security.boot.dingtalk.authentication.DingTalkMaAuthe
 import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -135,7 +136,7 @@ public class SecurityDingTalkMaFilterConfiguration {
 								.accessDeniedHandler(accessDeniedHandler)
 								.accessDeniedPage(authcProperties.getAccessDeniedUrl());
 					});
-			http.httpBasic(configurer -> configurer.disable());
+			http.httpBasic(AbstractHttpConfigurer::disable);
 			http.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
    	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class); 
    	    	
