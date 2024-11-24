@@ -142,7 +142,7 @@ public class SecurityDingTalkTmpCodeFilterConfiguration {
 			http.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
 					.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
-			super.configure(http, authcProperties.getCros());
+			super.configure(http, authcProperties.getCors());
 			super.configure(http, authcProperties.getCsrf());
 			super.configure(http, authcProperties.getHeaders());
 			super.configure(http);

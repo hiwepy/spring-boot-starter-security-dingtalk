@@ -14,10 +14,11 @@
  * the License.
  */
 package org.springframework.security.boot.dingtalk.authentication;
-import java.util.Collection;
 
 import org.springframework.security.boot.biz.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 @SuppressWarnings("serial")
 public class DingTalkMaAuthenticationToken extends AbstractAuthenticationToken {

@@ -1,7 +1,5 @@
 package org.springframework.security.boot.dingtalk.authentication;
 
-import com.dingtalk.api.response.OapiSnsGetuserinfoBycodeResponse;
-import com.dingtalk.api.response.OapiUserGetResponse;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

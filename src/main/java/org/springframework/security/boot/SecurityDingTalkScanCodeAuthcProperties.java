@@ -20,7 +20,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.security.boot.biz.property.*;
+import org.springframework.security.boot.biz.property.SecurityAuthcProperties;
+import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.dingtalk.authentication.DingTalkScanCodeAuthenticationProcessingFilter;
 
 @ConfigurationProperties(SecurityDingTalkScanCodeAuthcProperties.PREFIX)
@@ -38,19 +39,7 @@ public class SecurityDingTalkScanCodeAuthcProperties extends SecurityAuthcProper
 
     /** the code parameter name. Defaults to "loginTmpCode". */
     private String tmpCodeParameter = DingTalkScanCodeAuthenticationProcessingFilter.SPRING_SECURITY_FORM_TMPCODE_KEY;
-    
-    @NestedConfigurationProperty
-	private SecurityHeaderCorsProperties cros = new SecurityHeaderCorsProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityRedirectProperties redirect = new SecurityRedirectProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
 	

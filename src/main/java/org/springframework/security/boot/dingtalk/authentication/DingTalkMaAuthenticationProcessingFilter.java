@@ -15,12 +15,10 @@
  */
 package org.springframework.security.boot.dingtalk.authentication;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.boot.biz.authentication.PostOnlyAuthenticationProcessingFilter;
 import org.springframework.security.boot.dingtalk.exception.DingTalkCodeNotFoundException;
@@ -30,7 +28,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 /**
  * https://open.dingtalk.com/document/orgapp-client/mini-program-free-login

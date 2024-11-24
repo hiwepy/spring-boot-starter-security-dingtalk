@@ -1,9 +1,8 @@
 package org.springframework.security.boot.dingtalk.authentication;
 
+import com.dingtalk.spring.boot.DingTalkTemplate;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -17,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import com.dingtalk.spring.boot.DingTalkTemplate;
 
 @Slf4j
 public class DingTalkMaAuthenticationProvider implements AuthenticationProvider, InitializingBean {

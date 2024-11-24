@@ -15,20 +15,14 @@
  */
 package org.springframework.security.boot;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.security.boot.biz.property.SecurityAuthcProperties;
-import org.springframework.security.boot.biz.property.SecurityHeaderCorsProperties;
-import org.springframework.security.boot.biz.property.SecurityHeaderCsrfProperties;
-import org.springframework.security.boot.biz.property.SecurityHeadersProperties;
-import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
-import org.springframework.security.boot.biz.property.SecurityRedirectProperties;
-import org.springframework.security.boot.dingtalk.authentication.DingTalkMaAuthenticationProcessingFilter;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.security.boot.dingtalk.authentication.DingTalkTmpCodeAuthenticationProcessingFilter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.security.boot.biz.property.SecurityAuthcProperties;
+import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
+import org.springframework.security.boot.dingtalk.authentication.DingTalkMaAuthenticationProcessingFilter;
 
 @ConfigurationProperties(SecurityDingTalkMaAuthcProperties.PREFIX)
 @Getter
@@ -45,19 +39,7 @@ public class SecurityDingTalkMaAuthcProperties extends SecurityAuthcProperties {
 
 	/** the authCode parameter name. Defaults to "authCode". */
     private String authCodeParameter = DingTalkMaAuthenticationProcessingFilter.SPRING_SECURITY_FORM_CODE_KEY;
-    
-    @NestedConfigurationProperty
-	private SecurityHeaderCorsProperties cros = new SecurityHeaderCorsProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
-	
-	@NestedConfigurationProperty
-	private SecurityRedirectProperties redirect = new SecurityRedirectProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
 	

@@ -20,7 +20,8 @@ import org.springframework.security.boot.biz.authentication.nested.MatchedAuthen
 import org.springframework.security.boot.biz.authentication.nested.MatchedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.UserDetailsServiceAdapter;
-import org.springframework.security.boot.dingtalk.authentication.*;
+import org.springframework.security.boot.dingtalk.authentication.DingTalkScanCodeAuthenticationProcessingFilter;
+import org.springframework.security.boot.dingtalk.authentication.DingTalkScanCodeAuthenticationProvider;
 import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -140,7 +141,7 @@ public class SecurityDingTalkScanCodeFilterConfiguration {
 			http.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
 					.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
-			super.configure(http, authcProperties.getCros());
+			super.configure(http, authcProperties.getCors());
 			super.configure(http, authcProperties.getCsrf());
 			super.configure(http, authcProperties.getHeaders());
 			super.configure(http);

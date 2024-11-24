@@ -1,10 +1,10 @@
 package org.springframework.security.boot.dingtalk.authentication;
 
+import com.dingtalk.spring.boot.DingTalkTemplate;
 import com.taobao.api.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.boot.SecurityDingTalkProperties;
@@ -14,13 +14,10 @@ import org.springframework.security.boot.dingtalk.exception.DingTalkAuthenticati
 import org.springframework.security.boot.dingtalk.exception.DingTalkCodeNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import com.dingtalk.spring.boot.DingTalkTemplate;
 
 /**
  * https://open.dingtalk.com/document/orgapp-server/scan-qr-code-to-log-on-to-third-party-websites
